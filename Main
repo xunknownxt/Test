@@ -132,7 +132,7 @@ function Section.new(tabFrame, side)
     self.Frame.BackgroundColor3 = Color3.fromRGB(26,26,26)
     self.Frame.BorderSizePixel = 0
     self.Frame.Size = UDim2.new(0.48, 0, 1, 0)
-    self.Frame.Position = side == "left" and UDim2.new(0,0,0,0) or UDim2.new(0.52,0,0,0)
+    self.Frame.Position = side == "Left" and UDim2.new(0,0,0,0) or UDim2.new(0.52,0,0,0)
     self.Frame.Parent = tabFrame
     Instance.new("UICorner", self.Frame).CornerRadius = UDim.new(0,12)
 
