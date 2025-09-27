@@ -1,3 +1,10 @@
+local ClixcksUI = {}
+
+ClixcksUI.WindowMethods = {}
+
+local Section = {}
+Section.__index = Section
+
 function ClixcksUI:CreateWindow(config)
     assert(type(config) == "table", "Window config must be a table")
 
@@ -118,9 +125,6 @@ function ClixcksUI.WindowMethods:AddTab(tabConfig)
     return tabUI
 end
 
-local Section = {}
-Section.__index = Section
-
 function Section.new(tabFrame, side)
     local self = setmetatable({}, Section)
     self.Frame = Instance.new("Frame")
@@ -215,3 +219,5 @@ function Section:AddLabel(text)
 
     return label
 end
+
+return ClixcksUI
