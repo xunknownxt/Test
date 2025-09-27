@@ -1,0 +1,217 @@
+function ClixcksUI:CreateWindow(config)
+    assert(type(config) == "table", "Window config must be a table")
+
+    local title = config.Title or "ClixcksUI"
+    local subtitle = config.Subtitle or ""
+    local showUserInfo = config.ShowUserInfo or false
+    local keybind = config.Keybind or Enum.KeyCode.RightShift
+
+    local selfWindow = {}
+
+    selfWindow.ScreenGui = Instance.new("ScreenGui")
+    selfWindow.ScreenGui.Parent = game:GetService("CoreGui")
+    selfWindow.ScreenGui.Name = title.."UI"
+    selfWindow.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    selfWindow.MainFrame = Instance.new("Frame")
+    selfWindow.MainFrame.Parent = selfWindow.ScreenGui
+    selfWindow.MainFrame.BackgroundColor3 = Color3.fromRGB(26,26,26)
+    selfWindow.MainFrame.Size = UDim2.new(0, 532, 0, 356)
+    selfWindow.MainFrame.Position = UDim2.new(0.3,0,0.3,0)
+    selfWindow.MainFrame.BorderSizePixel = 0
+    Instance.new("UICorner", selfWindow.MainFrame).CornerRadius = UDim.new(0,12)
+
+    selfWindow.MainBar = Instance.new("Frame")
+    selfWindow.MainBar.Parent = selfWindow.MainFrame
+    selfWindow.MainBar.BackgroundColor3 = Color3.fromRGB(26,26,26)
+    selfWindow.MainBar.Size = UDim2.new(1,0,0,41)
+    selfWindow.MainBar.Position = UDim2.new(0,0,0,0)
+    selfWindow.MainBar.BorderSizePixel = 0
+    Instance.new("UICorner", selfWindow.MainBar).CornerRadius = UDim.new(0,12)
+
+    selfWindow.TitleLabel = Instance.new("TextLabel")
+    selfWindow.TitleLabel.Parent = selfWindow.MainBar
+    selfWindow.TitleLabel.Text = title
+    selfWindow.TitleLabel.TextSize = 20
+    selfWindow.TitleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+    selfWindow.TitleLabel.Font = Enum.Font.Ubuntu
+    selfWindow.TitleLabel.BackgroundTransparency = 1
+    selfWindow.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    selfWindow.TitleLabel.Size = UDim2.new(0, 200, 0, 41)
+    selfWindow.TitleLabel.Position = UDim2.new(0.02,0,0,0)
+
+    if subtitle ~= "" then
+        local subtitleLabel = Instance.new("TextLabel")
+        subtitleLabel.Parent = selfWindow.MainBar
+        subtitleLabel.Text = subtitle
+        subtitleLabel.TextSize = 14
+        subtitleLabel.TextColor3 = Color3.fromRGB(200,200,200)
+        subtitleLabel.Font = Enum.Font.Ubuntu
+        subtitleLabel.BackgroundTransparency = 1
+        subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        subtitleLabel.Position = UDim2.new(0.02,0,0.5,0)
+        subtitleLabel.Size = UDim2.new(0, 200, 0, 20)
+        selfWindow.SubtitleLabel = subtitleLabel
+    end
+
+    if showUserInfo then
+        local playerLabel = Instance.new("TextLabel")
+        playerLabel.Parent = selfWindow.MainFrame
+        playerLabel.Text = "Player: "..game.Players.LocalPlayer.Name
+        playerLabel.TextSize = 14
+        playerLabel.TextColor3 = Color3.fromRGB(255,255,255)
+        playerLabel.BackgroundTransparency = 1
+        playerLabel.Position = UDim2.new(0,10,1,-30)
+        playerLabel.Size = UDim2.new(0,200,0,20)
+    end
+
+    selfWindow.Tabs = {}
+    setmetatable(selfWindow, {__index = ClixcksUI.WindowMethods})
+    return selfWindow
+end
+
+function ClixcksUI.WindowMethods:AddTab(tabConfig)
+    assert(type(tabConfig) == "table", "Tab config must be a table")
+    local name = tabConfig.Name or "Tab"
+    local image = tabConfig.Image or ""
+
+    local tabUI = Instance.new("Frame")
+    tabUI.Name = name.."Tab"
+    tabUI.BackgroundColor3 = Color3.fromRGB(26,26,26)
+    tabUI.BackgroundTransparency = 0.05
+    tabUI.BorderSizePixel = 0
+    tabUI.Size = UDim2.new(0, 180, 0, self.MainFrame.Size.Y.Offset)
+    tabUI.Position = UDim2.new(0,0,0,0)
+    tabUI.Parent = self.MainFrame
+    Instance.new("UICorner", tabUI).CornerRadius = UDim.new(0,12)
+
+    local tabButton = Instance.new("Frame")
+    tabButton.Name = name.."Button"
+    tabButton.BackgroundColor3 = Color3.fromRGB(26,26,26)
+    tabButton.BackgroundTransparency = 0.4
+    tabButton.Size = UDim2.new(0, 154, 0, 48)
+    tabButton.Position = UDim2.new(0.05,0,0, (#self.Tabs*60))
+    tabButton.Parent = tabUI
+    Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0,12)
+
+    local tabLabel = Instance.new("TextLabel")
+    tabLabel.Text = name
+    tabLabel.Font = Enum.Font.Ubuntu
+    tabLabel.TextColor3 = Color3.fromRGB(255,255,255)
+    tabLabel.TextSize = 20
+    tabLabel.BackgroundTransparency = 1
+    tabLabel.Size = UDim2.new(0, 131, 0, 39)
+    tabLabel.Position = UDim2.new(0.05,0,0.1,0)
+    tabLabel.Parent = tabButton
+
+    if image ~= "" then
+        local imgLabel = Instance.new("ImageLabel")
+        imgLabel.Image = image
+        imgLabel.Size = UDim2.new(0,16,0,16)
+        imgLabel.Position = UDim2.new(0.02,0,0.5,0)
+        imgLabel.AnchorPoint = Vector2.new(0,0.5)
+        imgLabel.BackgroundTransparency = 1
+        imgLabel.Parent = tabButton
+    end
+
+    self.Tabs[name] = tabUI
+    return tabUI
+end
+
+local Section = {}
+Section.__index = Section
+
+function Section.new(tabFrame, side)
+    local self = setmetatable({}, Section)
+    self.Frame = Instance.new("Frame")
+    self.Frame.BackgroundTransparency = 0.4
+    self.Frame.BackgroundColor3 = Color3.fromRGB(26,26,26)
+    self.Frame.BorderSizePixel = 0
+    self.Frame.Size = UDim2.new(0.48, 0, 1, 0)
+    self.Frame.Position = side == "left" and UDim2.new(0,0,0,0) or UDim2.new(0.52,0,0,0)
+    self.Frame.Parent = tabFrame
+    Instance.new("UICorner", self.Frame).CornerRadius = UDim.new(0,12)
+
+    self.Count = 0
+    return self
+end
+
+function Section:AddButton(name, callback)
+    self.Count += 1
+
+    local buttonFrame = Instance.new("Frame")
+    buttonFrame.BackgroundColor3 = Color3.fromRGB(26,26,26)
+    buttonFrame.BackgroundTransparency = 0.2
+    buttonFrame.Size = UDim2.new(1, -10, 0, 50)
+    buttonFrame.Position = UDim2.new(0, 5, 0, 10 + (self.Count-1)*60)
+    buttonFrame.Parent = self.Frame
+    Instance.new("UICorner", buttonFrame).CornerRadius = UDim.new(0,12)
+
+    local button = Instance.new("TextButton")
+    button.Text = name
+    button.Font = Enum.Font.Ubuntu
+    button.TextSize = 20
+    button.TextColor3 = Color3.fromRGB(255,255,255)
+    button.BackgroundTransparency = 1
+    button.Size = UDim2.new(1,0,1,0)
+    button.Position = UDim2.new(0,0,0,0)
+    button.Parent = buttonFrame
+
+    button.MouseButton1Click:Connect(callback)
+    return button
+end
+
+function Section:AddToggle(name, default, callback)
+    self.Count += 1
+
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(26,26,26)
+    toggleFrame.BackgroundTransparency = 0.2
+    toggleFrame.Size = UDim2.new(1, -10, 0, 50)
+    toggleFrame.Position = UDim2.new(0, 5, 0, 45 + (self.Count-1)*55)
+    toggleFrame.Parent = self.Frame
+    Instance.new("UICorner", toggleFrame).CornerRadius = UDim.new(0,12)
+
+    local label = Instance.new("TextLabel")
+    label.Text = name
+    label.Font = Enum.Font.Ubuntu
+    label.TextSize = 20
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(0.8,0,1,0)
+    label.Position = UDim2.new(0.05,0,0,0)
+    label.Parent = toggleFrame
+
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0,30,0,30)
+    button.Position = UDim2.new(0.85,0,0.1,0)
+    button.BackgroundColor3 = default and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+    button.Text = ""
+    button.Parent = toggleFrame
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0,6)
+
+    local state = default
+    button.MouseButton1Click:Connect(function()
+        state = not state
+        button.BackgroundColor3 = state and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+        callback(state)
+    end)
+
+    return button
+end
+
+function Section:AddLabel(text)
+    self.Count += 1
+
+    local label = Instance.new("TextLabel")
+    label.Text = text
+    label.Font = Enum.Font.Ubuntu
+    label.TextSize = 16
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(1,-10,0,30)
+    label.Position = UDim2.new(0,5,0,45 + (self.Count-1)*35)
+    label.Parent = self.Frame
+
+    return label
+end
